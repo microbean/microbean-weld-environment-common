@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <artifactId>microbean-weld-environment-common</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+  <parent>
+    <groupId>org.microbean</groupId>
+    <artifactId>microbean-pluginmanagement-pom</artifactId>
+    <version>11</version>
+    <relativePath/>
+  </parent>
+
+  <name>microBean™ Weld Common Environment Extensions</name>
+  <description>${project.name}</description>
+  <url>http://microbean.github.io/${project.artifactId}</url>
+
+  <scm>
+    <connection>scm:git:git@github.com:microbean/${project.artifactId}.git</connection>
+    <developerConnection>scm:git:git@github.com:microbean/${project.artifactId}.git</developerConnection>
+    <url>https://github.com/microbean/${project.artifactId}/</url>
+    <tag>HEAD</tag>
+  </scm>
+
+  <organization>
+    <name>microBean™</name>
+    <url>http://microbean.systems/</url>
+  </organization>
+
+  <dependencyManagement>
+    <dependencies>
+
+      <dependency>
+        <groupId>org.jboss.weld</groupId>
+        <artifactId>weld-core-bom</artifactId>
+        <version>3.1.1.Final</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+
+      <dependency>
+        <groupId>org.jboss.weld.environment</groupId>
+        <artifactId>weld-environment-common</artifactId>
+        <version>3.1.1.Final</version>
+        <type>jar</type>
+      </dependency>
+      
+      <dependency>
+        <groupId>org.jboss</groupId>
+        <artifactId>jandex</artifactId>
+        <version>2.1.1.Final</version>
+        <type>jar</type>
+      </dependency>
+
+    </dependencies>
+  </dependencyManagement>
+
+  <dependencies>
+
+
+    <!-- Test-scoped dependencies. -->
+
+
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <type>jar</type>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.weld.se</groupId>
+      <artifactId>weld-se-core</artifactId>
+      <type>jar</type>
+      <scope>test</scope>
+    </dependency>
+
+
+    <!-- Runtime-scoped dependencies. -->
+
+
+
+
+
+
+    <!-- Provided-scoped dependencies. -->
+
+
+    <!-- Compile-scoped dependencies. -->
+
+
+    <dependency>
+      <groupId>org.jboss</groupId>
+      <artifactId>jandex</artifactId>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+        
+    <dependency>
+      <groupId>org.jboss.weld.environment</groupId>
+      <artifactId>weld-environment-common</artifactId>
+      <type>jar</type>
+      <scope>compile</scope>
+    </dependency>
+    
+
+  </dependencies>
+
+  <build>
+    <plugins>
+
+      <plugin>
+        <groupId>com.github.github</groupId>
+        <artifactId>site-maven-plugin</artifactId>
+      </plugin>
+
+    </plugins>
+  </build>
+
+  <properties>
+    <links>http://docs.jboss.org/cdi/api/2.0/,http://docs.oracle.com/javaee/7/api/,https://static.javadoc.io/org.jboss.weld.environment/weld-environment-common/3.1.1.Final</links>
+    <stylesheetfile>css/stylesheet.css</stylesheetfile>
+  </properties>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
+
+</project>
