@@ -28,6 +28,8 @@ import static org.junit.Assert.assertNotNull;
 public class TestSpike {
 
   private AutoCloseable container;
+
+  private long startupTime;
   
   public TestSpike() {
     super();
@@ -36,10 +38,14 @@ public class TestSpike {
   @Before
   public void startContainer() throws Exception {
     this.stopContainer();
+    final long start = System.currentTimeMillis();
     this.container = SeContainerInitializer.newInstance()
       .addBeanClasses(Foo.class)
       .initialize();
+    final long stop = System.currentTimeMillis();
+    this.startupTime = stop - start;
     assertNotNull(this.container);
+    System.out.println("*** startup took " + startupTime + " milliseconds");
   }
 
   @After

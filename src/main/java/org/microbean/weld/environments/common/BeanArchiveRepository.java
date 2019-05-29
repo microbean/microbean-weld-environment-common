@@ -16,17 +16,16 @@
  */
 package org.microbean.weld.environments.common;
 
-import java.net.URL;
+import java.nio.file.Path;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.jboss.weld.bootstrap.spi.BeanDiscoveryMode;
-import org.jboss.weld.bootstrap.spi.BeansXml;
-import org.jboss.weld.bootstrap.spi.Metadata;
 import org.jboss.weld.bootstrap.spi.Scanning;
-
-import org.jboss.weld.bootstrap.spi.helpers.MetadataImpl;
 
 import org.jboss.weld.environment.deployment.discovery.BeanArchiveScanner;
 import org.jboss.weld.environment.deployment.discovery.BeanArchiveScanner.ScanResult;
@@ -35,25 +34,39 @@ import org.jboss.weld.metadata.BeansXmlImpl;
 
 public class BeanArchiveRepository implements BeanArchiveScanner {
 
-  public BeanArchiveRepository() {
+  private final Set<? extends Path> paths;
+  
+  public BeanArchiveRepository(final Set<? extends Path> paths) {
     super();
+    if (paths == null || paths.isEmpty()) {
+      this.paths = Collections.emptySet();
+    } else {
+      this.paths = new HashSet<>(paths);
+    }
   }
   
   @Override
   public List<ScanResult> scan() {
-    final ScanResult scanResult =
-      new ScanResult(new BeansXmlImpl(Collections.emptyList(), /* enabled alternatives */
-                                      Collections.emptyList(), /* enabled alternative stereotypes */
-                                      Collections.emptyList(), /* enabled decorators */
-                                      Collections.emptyList(), /* enabled interceptors */
-                                      Scanning.EMPTY_SCANNING,
-                                      null, /* url; not actually used in Weld */
-                                      BeanDiscoveryMode.ANNOTATED,
-                                      "2.0",
-                                      false /* is trimmed */),
-                     null, /* bean archive ref; never consulted if beanArchiveId is set */
-                     "my bean archive" /* bean archive id */);
-    return Collections.singletonList(scanResult);
+    List<ScanResult> returnValue = null;
+    for (final Path path : this.paths) {
+      if (path != null) {
+        if (returnValue == null) {
+          returnValue = new ArrayList<>();
+        }
+        returnValue.add(new ScanResult(new BeansXmlImpl(Collections.emptyList(), /* enabled alternatives */
+                                                        Collections.emptyList(), /* enabled alternative stereotypes */
+                                                        Collections.emptyList(), /* enabled decorators */
+                                                        Collections.emptyList(), /* enabled interceptors */
+                                                        Scanning.EMPTY_SCANNING,
+                                                        null, /* url; not actually used in Weld */
+                                                        BeanDiscoveryMode.ANNOTATED,
+                                                        "2.0",
+                                                        false /* is trimmed */),
+                                       path.toString(), /* bean archive ref */
+                                       null /* bean archive id; never consulted if beanArchiveRef is set */));
+      }
+    }      
+    return returnValue;
   }
   
 }

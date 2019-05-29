@@ -1,1 +1,2 @@
-org.microbean.weld.environments.common.IndexPreservingJandexDiscoveryStrategy
+# org.microbean.weld.environments.common.IndexPreservingJandexDiscoveryStrategy
+org.microbean.weld.environments.common.NonScanningDiscoveryStrategy

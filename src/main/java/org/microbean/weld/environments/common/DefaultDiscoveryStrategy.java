@@ -22,7 +22,6 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Set;
 
 import org.jboss.weld.bootstrap.api.Bootstrap;
@@ -31,7 +30,6 @@ import org.jboss.weld.environment.logging.CommonLogger;
 
 import org.jboss.weld.environment.deployment.WeldBeanDeploymentArchive;
 
-import org.jboss.weld.environment.deployment.discovery.BeanArchiveHandler;
 import org.jboss.weld.environment.deployment.discovery.BeanArchiveScanner;
 import org.jboss.weld.environment.deployment.discovery.DiscoveryStrategy;
 import org.jboss.weld.environment.deployment.discovery.DiscoveryStrategyFactory; // for javadoc only
@@ -39,7 +37,6 @@ import org.jboss.weld.environment.deployment.discovery.ReflectionDiscoveryStrate
 
 import org.jboss.weld.environment.deployment.discovery.jandex.Jandex;
 
-import org.jboss.weld.resources.spi.ClassFileServices;
 import org.jboss.weld.resources.spi.ResourceLoader;
 
 /**
@@ -65,6 +62,11 @@ import org.jboss.weld.resources.spi.ResourceLoader;
  * callers should be prepared for any fields that might be set by
  * these calls to be {@code null} at {@link #performDiscovery()} time.</p>
  *
+ * <h2>Thread Safety</h2>
+ *
+ * <p>Instances of this class are not safe for concurrent use by
+ * multiple threads.</p>
+ *
  * @author <a href="https://about.me/lairdnelson"
  * target="_parent">Laird Nelson</a>
  *
@@ -74,13 +76,13 @@ import org.jboss.weld.resources.spi.ResourceLoader;
  */
 public class DefaultDiscoveryStrategy extends DelegatingDiscoveryStrategy {
 
-  protected volatile ResourceLoader resourceLoader;
+  protected ResourceLoader resourceLoader;
 
-  protected volatile Bootstrap bootstrap;
+  protected Bootstrap bootstrap;
 
-  protected volatile Set<Class<? extends Annotation>> initialBeanDefiningAnnotations;
+  protected Set<Class<? extends Annotation>> initialBeanDefiningAnnotations;
 
-  protected volatile BeanArchiveScanner beanArchiveScanner;
+  protected BeanArchiveScanner beanArchiveScanner;
 
   public DefaultDiscoveryStrategy() {
     this(null);
@@ -93,31 +95,25 @@ public class DefaultDiscoveryStrategy extends DelegatingDiscoveryStrategy {
   @Override
   public void setResourceLoader(final ResourceLoader resourceLoader) {
     super.setResourceLoader(resourceLoader);
-    if (this.delegate == null) {
-      this.resourceLoader = resourceLoader;
-    }
+    this.resourceLoader = resourceLoader;
   }
 
   @Override
   public void setBootstrap(final Bootstrap bootstrap) {
     super.setBootstrap(bootstrap);
-    if (this.delegate == null) {
-      this.bootstrap = bootstrap;
-    }
+    this.bootstrap = bootstrap;
   }
 
   @Override
   public void setInitialBeanDefiningAnnotations(final Set<Class<? extends Annotation>> initialBeanDefiningAnnotations) {
     super.setInitialBeanDefiningAnnotations(initialBeanDefiningAnnotations);
-    if (this.delegate == null) {
-      this.initialBeanDefiningAnnotations = initialBeanDefiningAnnotations;
-    }
+    this.initialBeanDefiningAnnotations = initialBeanDefiningAnnotations;
   }
 
   @Override
   public void setScanner(final BeanArchiveScanner beanArchiveScanner) {
     super.setScanner(beanArchiveScanner);
-    if (this.delegate == null) {
+    if (this.beanArchiveScanner == null) {
       this.beanArchiveScanner = beanArchiveScanner;
     }
   }
@@ -137,7 +133,7 @@ public class DefaultDiscoveryStrategy extends DelegatingDiscoveryStrategy {
         } else {
           CommonLogger.LOG.usingJandex();
           try {
-            returnValue = Jandex.createJandexDiscoveryStrategy(resourceLoader, bootstrap, initialBeanDefiningAnnotations);
+            returnValue = Jandex.createJandexDiscoveryStrategy(this.resourceLoader, this.bootstrap, this.initialBeanDefiningAnnotations);
           } catch (final Exception exception) {
             throw CommonLogger.LOG.unableToInstantiate(Jandex.JANDEX_DISCOVERY_STRATEGY_CLASS_NAME,
                                                        Arrays.toString(new Object[] { this.resourceLoader,
@@ -150,10 +146,19 @@ public class DefaultDiscoveryStrategy extends DelegatingDiscoveryStrategy {
       if (returnValue == null) {
         returnValue = new ReflectionDiscoveryStrategy(this.resourceLoader, this.bootstrap, this.initialBeanDefiningAnnotations);
       }
+      assert returnValue != null;
+      if (this.beanArchiveScanner != null) {
+        returnValue.setScanner(this.beanArchiveScanner);
+      }
+      this.delegateAcquired(returnValue);
     } else {
       returnValue = this.delegate;
     }
     return returnValue;
+  }
+
+  protected void delegateAcquired(final DiscoveryStrategy delegate) {
+
   }
 
   private static final boolean isJandexStrategyDisabled() {
